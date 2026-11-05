@@ -1,2 +1,2 @@
-# 3D-desist-Lego-bricks
-Public repository for 3D printed LEGO brick designs and collaboration
+# 3D Interative Puzzle
+Public repository for 3D a collaboratie puzzle game within unity
