@@ -22,11 +22,21 @@ public class FirstPersonController : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+
+        if (playerCamera == null)
+        {
+            Camera childCamera = GetComponentInChildren<Camera>();
+            if (childCamera != null)
+                playerCamera = childCamera.transform;
+        }
+
         LockCursor();
     }
 
     void Update()
     {
+        Debug.Log(controller.isGrounded);
+
         Keyboard keyboard = Keyboard.current;
         Mouse mouse = Mouse.current;
 
@@ -60,7 +70,6 @@ public class FirstPersonController : MonoBehaviour
                 sprinting = keyboard.leftShiftKey.isPressed;
                 jumpPressed = keyboard.spaceKey.wasPressedThisFrame;
             }
-
             if (mouse != null && playerCamera != null)
             {
                 Vector2 look =
@@ -69,7 +78,7 @@ public class FirstPersonController : MonoBehaviour
                 transform.Rotate(Vector3.up, look.x);
 
                 cameraPitch =
-                    Mathf.Clamp(cameraPitch - look.y, -85f, 85f);
+                    Mathf.Clamp(cameraPitch + look.y, -85f, 85f);
 
                 playerCamera.localRotation =
                     Quaternion.Euler(cameraPitch, 0f, 0f);
@@ -81,9 +90,19 @@ public class FirstPersonController : MonoBehaviour
 
         float speed = sprinting ? sprintSpeed : moveSpeed;
 
-        Vector3 movement =
-            (transform.right * input.x + transform.forward * input.y)
-            * speed;
+        Vector3 forward = playerCamera != null
+            ? playerCamera.forward
+            : transform.forward;
+        Vector3 right = playerCamera != null
+            ? playerCamera.right
+            : transform.right;
+
+        forward.y = 0f;
+        right.y = 0f;
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 movement = (right * input.x + forward * input.y) * speed;
 
         if (controller.isGrounded)
         {
